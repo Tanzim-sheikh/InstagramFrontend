@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { getSocket } from "../lib/socket";
 import api from "../api/client";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
@@ -16,8 +16,7 @@ const ChatDashboard = ({ friend }) => {
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-  const socketUrl = baseUrl.replace(/\/api$/, "");
+  // Socket URL is managed in src/lib/socket.js via VITE_SOCKET_URL (prod) or localhost in dev
 
   useEffect(() => {
     let mounted = true;
@@ -47,7 +46,10 @@ const ChatDashboard = ({ friend }) => {
       } catch (_) {}
     })();
 
-    socketRef.current = io(socketUrl, { withCredentials: true });
+    const s = getSocket();
+    if (s) {
+      socketRef.current = s;
+    }
     socketRef.current.emit("joinRoom", { senderId: myId, receiverId: friendId });
 
     socketRef.current.on("receiveMessage", (msg) => {
@@ -70,7 +72,7 @@ const ChatDashboard = ({ friend }) => {
       socketRef.current?.disconnect();
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
-  }, [myId, friendId, socketUrl]);
+  }, [myId, friendId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
