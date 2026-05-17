@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   // baseURL: 'https://your-nexachat-backend.example.com/api',
-  baseURL: 'https://instagram-backend-five-iota.vercel.app',
+  baseURL: 'https://instagram-backend-five-iota.vercel.app/api',
 });
 
 api.interceptors.request.use((config) => {
