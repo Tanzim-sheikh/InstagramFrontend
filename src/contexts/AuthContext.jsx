@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../api/client';
 
@@ -25,7 +26,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     loadUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (email, password) => {

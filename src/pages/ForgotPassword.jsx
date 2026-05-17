@@ -1,43 +1,55 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import AuthShell from "../components/AuthShell.jsx";
+import { Alert, FieldError } from "../components/FormFeedback.jsx";
+import { getApiError, isValidEmail } from "../utils/formHelpers";
+
+const inputClass = "w-full rounded-md border border-slate-300 px-3 py-3 text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100";
 
 const ForgotPassword = () => {
   const { forgotPassword } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    if (!isValidEmail(email)) {
+      setEmailError("Valid email address enter karein.");
+      return;
+    }
     setLoading(true);
     try {
-      await forgotPassword(email);
-      setSuccess('If the email exists, a reset code has been sent.');
-      navigate('/reset', { state: { email } });
+      await forgotPassword(email.trim());
+      navigate("/reset", { state: { email: email.trim() } });
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to send reset code');
+      setError(getApiError(err, "Reset code send nahi ho paya."));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Forgot Password</h2>
-      {error && <div className="text-red-600 mb-2">{error}</div>}
-      {success && <div className="text-green-600 mb-2">{success}</div>}
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input className="w-full border p-2 rounded" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <button disabled={loading} className="px-4 py-2 bg-black text-white rounded" type="submit">
-          {loading ? 'Sending...' : 'Send reset code'}
+    <AuthShell eyebrow="Password recovery" title="Reset code bhejein" subtitle="Apna registered email enter karein. Agar account exist karta hai toh OTP reset code milega.">
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        <Alert>{error}</Alert>
+        <div>
+          <label className="text-sm font-bold text-slate-700" htmlFor="email">Email</label>
+          <input id="email" className={inputClass} placeholder="you@example.com" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setEmailError(""); setError(""); }} />
+          <FieldError message={emailError} />
+        </div>
+        <button disabled={loading} className="w-full rounded-md bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-teal-600" type="submit">
+          {loading ? "Sending code..." : "Send reset code"}
         </button>
       </form>
-    </div>
+      <p className="mt-5 text-center text-sm text-slate-600">
+        Password yaad aa gaya? <Link to="/login" className="font-bold text-slate-950 hover:text-teal-700">Login</Link>
+      </p>
+    </AuthShell>
   );
 };
 

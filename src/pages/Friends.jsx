@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
-import { useAuth } from '../contexts/AuthContext.jsx';
 import { getSocket } from '../lib/socket';
 
 const Friends = () => {
@@ -9,7 +8,6 @@ const Friends = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
-  const { user: me } = useAuth();
   const navigate = useNavigate();
   const [online, setOnline] = useState(new Set());
 
@@ -35,8 +33,8 @@ const Friends = () => {
   useEffect(() => {
     const s = getSocket();
     const onOnline = (list) => setOnline(new Set((list || []).map(String)));
-    s.on('onlineUsers', onOnline);
-    return () => s.off('onlineUsers', onOnline);
+    s?.on('onlineUsers', onOnline);
+    return () => s?.off('onlineUsers', onOnline);
   }, []);
 
   const filtered = useMemo(() => {

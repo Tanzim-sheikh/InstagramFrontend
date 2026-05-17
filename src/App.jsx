@@ -1,6 +1,6 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
 import Header from "./components/Header.jsx";
 import LandingHome from "./pages/LandingHome.jsx";
 import About from "./pages/About.jsx";
@@ -22,7 +22,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Header />
-        <div className="p-4 max-w-3xl mx-auto">
+        <main className="min-h-[calc(100vh-72px)]">
           <Routes>
             <Route path="/" element={<LandingHome />} />
             <Route path="/about" element={<About />} />
@@ -40,7 +40,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </div>
+        </main>
       </BrowserRouter>
     </AuthProvider>
   );

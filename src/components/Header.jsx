@@ -1,9 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import api from '../api/client';
-import InstaLogo from '../assets/instagram.png';
-import { getSocket, registerSocketUser } from '../lib/socket';
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import api from "../api/client";
+import { APP_NAME } from "../utils/formHelpers";
+import { getSocket, registerSocketUser } from "../lib/socket";
+
+const navClass = ({ isActive }) =>
+  `px-3 py-2 rounded-md text-sm font-medium ${
+    isActive ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+  }`;
+
+const Brand = () => (
+  <Link to="/" className="flex items-center gap-3">
+    <span className="grid h-10 w-10 place-items-center rounded-lg bg-teal-500 text-base font-black text-white shadow-sm">
+      N
+    </span>
+    <span className="text-xl font-black tracking-tight text-slate-950">{APP_NAME}</span>
+  </Link>
+);
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -13,127 +27,122 @@ const Header = () => {
 
   const onLogout = () => {
     logout();
-    navigate('/');
+    setMobileOpen(false);
+    navigate("/");
   };
 
   useEffect(() => {
     let mounted = true;
     const fetchUnread = async () => {
       try {
-        const { data } = await api.get('/unread-summary');
+        const { data } = await api.get("/unread-summary");
         if (mounted) setUnreadTotal(Number(data?.total || 0));
-      } catch (_) {}
+      } catch {
+        if (mounted) setUnreadTotal(0);
+      }
     };
+
     if (user?.id || user?._id) {
       registerSocketUser(user.id || user._id);
       fetchUnread();
       const s = getSocket();
       const onInc = () => fetchUnread();
       const onRead = () => fetchUnread();
-      s.on('unreadIncrement', onInc);
-      window.addEventListener('conversationRead', onRead);
+      s?.on("unreadIncrement", onInc);
+      window.addEventListener("conversationRead", onRead);
       return () => {
-        s.off('unreadIncrement', onInc);
-        window.removeEventListener('conversationRead', onRead);
+        mounted = false;
+        s?.off("unreadIncrement", onInc);
+        window.removeEventListener("conversationRead", onRead);
       };
     }
+    setUnreadTotal(0);
+    return () => {
+      mounted = false;
+    };
   }, [user]);
 
+  const authedLinks = (
+    <>
+      <NavLink to="/chat" className={navClass} onClick={() => setMobileOpen(false)}>
+        <span className="relative inline-flex">
+          Chats
+          {unreadTotal > 0 && <span className="absolute -right-3 -top-1 h-2.5 w-2.5 rounded-full bg-teal-400" />}
+        </span>
+      </NavLink>
+      <NavLink to="/friends" className={navClass} onClick={() => setMobileOpen(false)}>Friends</NavLink>
+      <NavLink to="/find-friends" className={navClass} onClick={() => setMobileOpen(false)}>Discover</NavLink>
+      <NavLink to="/requests" className={navClass} onClick={() => setMobileOpen(false)}>Requests</NavLink>
+    </>
+  );
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 py-2.5 grid grid-cols-3 items-center gap-4">
-        {/* Left: Brand (aligned start) */}
-        <div className="flex items-center justify-start">
-          <Link to="/" className="flex items-center gap-3 shrink-0">
-            <img src={InstaLogo} alt="Instagram" className="w-10 h-10" />
-            <span className="text-xl font-semibold">Instagram</span>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <Brand />
 
-        {/* Center: Primary nav (centered) */}
-        <div className="flex items-center justify-center">
-          <nav className="hidden md:flex items-center gap-2 text-sm text-gray-700">
-            <Link to="/" className="px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-black transition">Home</Link>
-            <Link to="/about" className="px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-black transition">About</Link>
-            <Link to="/speciality" className="px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-black transition">Speciality</Link>
-          </nav>
-        </div>
-
-        {/* Right: User actions (aligned end) */}
-        <div className="flex items-center justify-end">
-          {!user ? (
-            <nav className="hidden md:flex gap-2 shrink-0">
-              <Link to="/login" className="px-3 py-1.5 rounded-md bg-black text-white">Login</Link>
-              <Link to="/signup" className="px-3 py-1.5 rounded-md border">Signup</Link>
-            </nav>
-          ) : (
-            <div className="hidden md:flex items-center gap-4 shrink-0">
-              <nav className="flex items-center gap-2 text-sm text-gray-700">
-                <div className="relative">
-                  <Link to="/chat" className="px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-black transition">Chat</Link>
-                  {unreadTotal > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-                  )}
-                </div>
-                <Link to="/friends" className="px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-black transition">Friends</Link>
-              </nav>
-              <Link to="/profile" title="My Profile" className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-gray-100 transition">
-                {user?.profilePhoto?.url ? (
-                  <img src={user.profilePhoto.url} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-200" />
-                )}
-                <span className="hidden sm:inline text-sm font-medium truncate max-w-[120px]">{user.name}</span>
-              </Link>
-              <button onClick={onLogout} className="px-3 py-1.5 rounded-md border hover:bg-gray-100 transition">Logout</button>
-            </div>
+        <nav className="hidden items-center gap-1 md:flex">
+          <NavLink to="/" className={navClass}>Home</NavLink>
+          {user ? authedLinks : (
+            <>
+              <NavLink to="/about" className={navClass}>About</NavLink>
+              <NavLink to="/speciality" className={navClass}>Security</NavLink>
+            </>
           )}
-          <button
-            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-md border"
-            onClick={() => setMobileOpen(v => !v)}
-            aria-label="Toggle menu"
-          >
-            <span className="block w-5 h-0.5 bg-black" />
-            <span className="block w-5 h-0.5 bg-black mt-1.5" />
-            <span className="block w-5 h-0.5 bg-black mt-1.5" />
-          </button>
+        </nav>
+
+        <div className="hidden items-center gap-3 md:flex">
+          {!user ? (
+            <>
+              <Link to="/login" className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:border-slate-900">
+                Login
+              </Link>
+              <Link to="/signup" className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600">
+                Create account
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/profile" className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100">
+                {user?.profilePhoto?.url ? (
+                  <img src={user.profilePhoto.url} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
+                ) : (
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-sm font-bold text-slate-700">
+                    {(user.name || "U").slice(0, 1).toUpperCase()}
+                  </span>
+                )}
+                <span className="max-w-28 truncate text-sm font-semibold text-slate-800">{user.name}</span>
+              </Link>
+              <button onClick={onLogout} className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700">
+                Logout
+              </button>
+            </>
+          )}
         </div>
+
+        <button
+          className="grid h-10 w-10 place-items-center rounded-md border border-slate-300 md:hidden"
+          onClick={() => setMobileOpen((value) => !value)}
+          aria-label="Toggle navigation"
+          aria-expanded={mobileOpen}
+        >
+          <span className="text-xl font-bold">{mobileOpen ? "x" : "="}</span>
+        </button>
       </div>
+
       {mobileOpen && (
-        <div className="md:hidden border-t bg-white">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2">
-            <nav className="flex flex-col text-sm text-gray-700">
-              <Link to="/" className="px-3 py-2 rounded-md hover:bg-gray-100" onClick={() => setMobileOpen(false)}>Home</Link>
-              <Link to="/about" className="px-3 py-2 rounded-md hover:bg-gray-100" onClick={() => setMobileOpen(false)}>About</Link>
-              <Link to="/speciality" className="px-3 py-2 rounded-md hover:bg-gray-100" onClick={() => setMobileOpen(false)}>Speciality</Link>
-            </nav>
-            {!user ? (
-              <div className="flex gap-2">
-                <Link to="/login" className="flex-1 px-3 py-2 rounded-md bg-black text-white text-center" onClick={() => setMobileOpen(false)}>Login</Link>
-                <Link to="/signup" className="flex-1 px-3 py-2 rounded-md border text-center" onClick={() => setMobileOpen(false)}>Signup</Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  {user?.profilePhoto?.url ? (
-                    <img src={user.profilePhoto.url} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-200" />
-                  )}
-                  <span className="text-sm font-medium">{user.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Link to="/chat" className="relative px-3 py-2 rounded-md border flex-1 text-center" onClick={() => setMobileOpen(false)}>
-                    Chat
-                    {unreadTotal > 0 && (
-                      <span className="absolute top-2 right-2 inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-                    )}
-                  </Link>
-                  <Link to="/friends" className="px-3 py-2 rounded-md border flex-1 text-center" onClick={() => setMobileOpen(false)}>Friends</Link>
-                </div>
-                <button onClick={() => { setMobileOpen(false); onLogout(); }} className="px-3 py-2 rounded-md border">Logout</button>
-              </div>
+        <div className="border-t border-slate-200 bg-white md:hidden">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-4">
+            <NavLink to="/" className={navClass} onClick={() => setMobileOpen(false)}>Home</NavLink>
+            {user ? authedLinks : (
+              <>
+                <NavLink to="/about" className={navClass} onClick={() => setMobileOpen(false)}>About</NavLink>
+                <NavLink to="/speciality" className={navClass} onClick={() => setMobileOpen(false)}>Security</NavLink>
+                <Link to="/login" className="rounded-md border border-slate-300 px-4 py-2 text-center text-sm font-semibold" onClick={() => setMobileOpen(false)}>Login</Link>
+                <Link to="/signup" className="rounded-md bg-slate-950 px-4 py-2 text-center text-sm font-semibold text-white" onClick={() => setMobileOpen(false)}>Create account</Link>
+              </>
             )}
+            {user && <button onClick={onLogout} className="rounded-md border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">Logout</button>}
           </div>
         </div>
       )}

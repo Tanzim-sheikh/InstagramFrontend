@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://instagram-backend-five-iota.vercel.app/api',
-  // baseURL: 'http://localhost:5000/api',
+  // baseURL: 'https://your-nexachat-backend.example.com/api',
+  baseURL: 'http://localhost:5000/api',
 });
 
 api.interceptors.request.use((config) => {
