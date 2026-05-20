@@ -1,16 +1,85 @@
-# React + Vite
+# 💬 Nexa Chat - Real-time Messaging Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, full-stack real-time messaging platform built with MERN stack featuring Socket.IO for instant communication.
 
-Currently, two official plugins are available:
+## 🌟 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Real-time Messaging** — Instant message delivery using Socket.IO
+- **JWT Authentication** — Secure login and signup with email verification
+- **User Management** — Online/offline status, typing indicators, profile photos
+- **Responsive Design** — Works seamlessly on desktop and mobile
+- **Error Handling** — Comprehensive error messages and validation
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Frontend:**
+- React.js — UI library
+- Tailwind CSS — Styling
+- Socket.IO Client — Real-time communication
+- Redux Toolkit — State management (if used)
 
-## Expanding the ESLint configuration
+**Backend:**
+- Node.js — JavaScript runtime
+- Express.js — Web framework
+- MongoDB — NoSQL database
+- Socket.IO Server — Real-time communication
+- JWT — Authentication
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📦 Installation
+
+### Prerequisites
+- Node.js (v14+)
+- MongoDB (local or Atlas)
+
+### Clone Repository
+```bash
+git clone https://github.com/Tanzim-sheikh/Nexa-Chat.git
+cd Nexa-Chat
+```
+
+### Backend Setup
+```bash
+cd backend
+npm install
+touch .env
+
+# Add to .env:
+# MONGO_URI=your_mongodb_connection_string
+# JWT_SECRET=your_secret_key
+# PORT=5000
+
+npm start
+```
+
+### Frontend Setup
+```bash
+cd frontend
+npm install
+touch .env
+
+# Add to .env:
+# REACT_APP_API_URL=http://localhost:5000
+
+npm start
+```
+
+## 🚀 Features Breakdown
+
+### 1. Real-time Messaging
+- Uses Socket.IO for WebSocket connections
+- Messages delivered instantly without page refresh
+- Typing indicators show when other user is typing
+
+### 2. Authentication
+- Email + Password login
+- JWT token-based authentication
+- Email verification on signup
+- Password reset functionality
+
+### 3. User Profiles
+- Profile photo upload to Cloudinary
+- Online/offline status
+- Last seen timestamp
+- User search functionality
+
+## 📁 Project Structure
