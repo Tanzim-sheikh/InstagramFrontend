@@ -83,3 +83,55 @@ npm start
 - User search functionality
 
 ## 📁 Project Structure
+Nexa-Chat/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   └── App.js
+│   └── package.json
+├── backend/
+│   ├── models/
+│   ├── routes/
+│   ├── controllers/
+│   ├── middleware/
+│   └── server.js
+└── README.md
+
+## 🎯 API Endpoints
+
+### Authentication
+- `POST /api/auth/signup` — Create new user
+- `POST /api/auth/login` — User login
+- `POST /api/auth/logout` — User logout
+
+### Messages
+- `GET /api/messages/:userId` — Fetch chat history
+- `POST /api/messages` — Send message (via Socket.IO in real-time)
+
+### Users
+- `GET /api/users` — Get all users
+- `GET /api/users/:userId` — Get user profile
+- `PUT /api/users/:userId` — Update profile
+
+## 🔗 Live Demo
+[Link to deployed application here]
+
+## 📸 Screenshots
+[Add 2-3 screenshots of your app]
+
+## 🤝 Contributing
+Contributions are welcome! Feel free to fork and submit pull requests.
+
+## 📝 License
+MIT License - feel free to use this project for personal or commercial purposes.
+
+## 👤 Author
+**Tanzim Sheikh**
+- Email: tanzimsheikh68@gmail.com
+- LinkedIn: [Tanzim Sheikh](https://www.linkedin.com/in/tanzim-sheikh-a42159328)
+- GitHub: [@Tanzim-sheikh](https://github.com/Tanzim-sheikh)
+
+## ⭐ Support
+If you found this project helpful, please consider giving it a star! It helps other developers discover the project.
